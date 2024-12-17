@@ -116,12 +116,19 @@ fun LoginScreen(navController: NavController, context: Context) {
         onClick = {
           if (email.isNotEmpty() && password.isNotEmpty()) {
             loading = true
+            errorMessage = "" // Reiniciar el mensaje de error
             coroutineScope.launch {
-              val response = RetrofitClient.apiService.login(LoginRequest(email, password))
-              val token = response.token
-              saveToken(context, token)
-              navController.navigate("users")
-
+              try {
+                val response = RetrofitClient.apiService.login(LoginRequest(email, password))
+                val token = response.token
+                saveToken(context, token) // Guarda el token
+                loading = false
+                navController.navigate("users") // Navega a la siguiente pantalla
+              } catch (e: Exception) {
+                // Manejar error (ej. credenciales incorrectas o problemas de red)
+                loading = false
+                errorMessage = "Credenciales incorrectas. Por favor, intenta de nuevo."
+              }
             }
           } else {
             errorMessage = "Por favor, ingrese todos los campos."
@@ -135,7 +142,7 @@ fun LoginScreen(navController: NavController, context: Context) {
         )
       ) {
         if (loading) {
-          Text(text = "Cargando")
+          Text(text = "Cargando...")
         } else {
           Text(
             text = "Ingresar",
@@ -145,6 +152,7 @@ fun LoginScreen(navController: NavController, context: Context) {
           )
         }
       }
+
     }
 
     if (errorMessage.isNotEmpty()) {

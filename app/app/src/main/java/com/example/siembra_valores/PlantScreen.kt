@@ -3,6 +3,8 @@ package com.example.siembra_valores
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,7 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -150,12 +156,25 @@ fun PlantScreen(navController: NavController, plantId: String) {
             fontFamily = customFont,
           )
 
-          // Verifica si hay historiales de servicio
-          if (it.historiales.isEmpty()) {
-            Text(text = "Sin servicios", color = Color.Gray, fontFamily = customFont)
-          } else {
-            // Si hay historiales, los muestra
-            it.historiales.forEach { history ->
+          LazyColumn(
+            modifier = Modifier
+              .fillMaxSize()
+              .padding(16.dp)
+          ) {
+            item {
+              // Encabezado o texto si no hay historiales
+              if (it.historiales.isEmpty()) {
+                Text(
+                  text = "Sin servicios",
+                  color = Color.Gray,
+                  fontFamily = customFont,
+                  modifier = Modifier.padding(8.dp)
+                )
+              }
+            }
+
+            // Mostrar la lista de historiales si existen
+            items(it.historiales) { history ->
               val formattedDate = formatDate(history.fecha)
               Column(modifier = Modifier.padding(vertical = 8.dp)) {
                 Text(
@@ -168,15 +187,17 @@ fun PlantScreen(navController: NavController, plantId: String) {
                   text = "Descripción: ${history.servicio_description}",
                   fontFamily = customFont,
                 )
-                Text(text = "Fecha: $formattedDate", fontFamily = customFont)
+                Text(
+                  text = "Fecha: $formattedDate",
+                  fontFamily = customFont,
+                )
               }
             }
           }
         }
-      } ?: run {
-        Text(text = "Cargando detalles de la planta...")
       }
     }
   }
 }
+
 
